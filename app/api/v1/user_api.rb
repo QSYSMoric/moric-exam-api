@@ -30,24 +30,12 @@ module V1
 
         params :user_form do
           requires :name, type: String, desc: '用户名称'
-          requires :mobile, type: String, desc: '用户手机号', regexp: /\A1[3-9]\d{9}\z/
-          requires :sex, type: Integer, desc: '用户性别', values: [0,1]
-          requires :app_user_type, type: Integer, desc: '用户类型', values: [0,1]
+          requires :role, type: Integer, desc: '账号角色', values: [0,1]
+          requires :gender, type: String, desc: '用户性别', values: ["男","女"]
+          requires :password_digest, type: String, desc:"密码"
           optional :notes, type: String, desc: '备注'
         end
 
-      end
-
-      desc "动态路由获取用户的名称"
-      route_param :user_id, type: Integer, desc: 'User ID' do
-        desc '获取用户的名字'
-        get do
-          begin 
-            show_name(params[:user_id])
-          rescue => e
-            error!({ code: 404, message: e.message }, 404)
-          end
-        end
       end
 
       desc "获取用户自身信息"
@@ -56,29 +44,7 @@ module V1
         authenticate_user!
 
         success_response(current_user)
-      end
-
-      desc "更新用户信息"
-      params do
-        use :user_form
-      end 
-      post :info do 
-        begin
-          user = find(@current_user.id)
-          if user
-            user.update!(
-              name: params[:name],
-              sex: params[:sex],
-              app_user_type: params[:app_user_type],
-              notes: params[:notes]
-            )
-            { code: 200, message: '更新成功', data: user }
-          else
-            error!({ code: 404, message: '用户不存在' }, 404)
-          end
-        rescue => e
-          error!({ code: 404, message: e.message }, 404)
-        end
+        
       end
 
     end

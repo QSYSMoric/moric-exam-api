@@ -2,10 +2,12 @@ module ResponseHelper
   # 成功响应 (200)
   def success_response(data = nil, message: 'success', meta: nil)
     status 200
-    present :code, 200
-    present :message, message
-    present :data, data
-    present :meta, meta if meta
+    {
+      code: 200,
+      message: message,
+      data: data,
+      meta: meta
+    }.compact
   end
 
   # 错误响应

@@ -1,17 +1,23 @@
 module UserService
 
-  Text1 = '1233132'
+  def self.account_recognition(name,password)
 
-  def self.account_recognition(name,mobile)
+      p name,password
   
-      u = AppUser.find_by(name: name)
+      u = User.find_by(name: name, password_digest: password)
+
+      p u
 
       unless u
-        return error_response("手机号或密码错误", 401)
+
+        return error_response("用户名或密码错误", 401)
+
       end
 
-      unless u.mobile == mobile
-        return error_response("手机号不存在", 401)
+      unless u.password_digest == password
+
+        return error_response("用户名或密码错误", 401)
+
       end
 
       token = u.generate_jwt();

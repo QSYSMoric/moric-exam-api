@@ -13,13 +13,11 @@ module V1
       desc "登录"
       params do 
         requires :name, type: String, desc: "账号"
-        requires :mobile, type: String, desc:"手机号"
+        requires :password, type: String, desc:"密码"
       end
       post :sign do 
 
-        p ::UserService::Text1
-
-        token = UserService.account_recognition(params[:name],params[:mobile])
+        token = UserService.account_recognition(params[:name],params[:password])
 
         success_response(token)
 

@@ -7,6 +7,6 @@ class Task < ApplicationRecord
   belongs_to :contact
 
   ## 跟进记录的负责人
-  belongs_to :follow_person, class_name: 'User'
+  belongs_to :follow_person, class_name: 'User', foreign_key: "user_id"
 
 end
