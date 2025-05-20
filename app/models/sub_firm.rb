@@ -1,0 +1,2 @@
+class SubFirm < ApplicationRecord
+end
