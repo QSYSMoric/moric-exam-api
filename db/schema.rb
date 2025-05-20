@@ -10,68 +10,65 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_19_012554) do
+ActiveRecord::Schema.define(version: 2025_05_20_034022) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "app_users", force: :cascade do |t|
-    t.string "name", comment: "姓名"
-    t.string "mobile", comment: "手机号"
-    t.integer "sex", comment: "性别"
-    t.integer "app_user_type", comment: "账号类型"
-    t.datetime "login_at", comment: "登录时间"
-    t.integer "sub_firm_id", comment: "所属公司"
-    t.text "notes", comment: "备注"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["app_user_type"], name: "index_app_users_on_app_user_type"
-    t.index ["mobile"], name: "index_app_users_on_mobile", unique: true
-    t.index ["sub_firm_id"], name: "index_app_users_on_sub_firm_id"
-  end
-
-  create_table "students", force: :cascade do |t|
-    t.string "name"
-    t.integer "age"
-    t.bigint "teacher_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "active", default: true
-    t.index ["teacher_id"], name: "index_students_on_teacher_id"
-  end
-
-  create_table "sub_firms", force: :cascade do |t|
-    t.string "firm_name", comment: "公司名称"
-    t.float "registered_capital", comment: "注册资本"
+  create_table "companies", force: :cascade do |t|
+    t.string "name", comment: "公司名"
+    t.string "phone", comment: "公司联系电话"
     t.string "address", comment: "公司地址"
-    t.boolean "active", default: true, comment: "是否激活"
-    t.integer "firm_property", comment: "公司性质"
+    t.string "post_code", comment: "邮编"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["active"], name: "index_sub_firms_on_active"
+    t.bigint "follow_person_id", comment: "跟进人"
+    t.index ["follow_person_id"], name: "index_companies_on_follow_person_id"
+    t.index ["name"], name: "index_companies_on_name"
   end
 
-  create_table "teacher_structures", force: :cascade do |t|
-    t.integer "teacher_id"
-    t.integer "super_id"
+  create_table "contacts", force: :cascade do |t|
+    t.string "name", comment: "姓名"
+    t.string "gender", comment: "性别"
+    t.string "importance", comment: "重要性"
+    t.string "department", comment: "部门"
+    t.string "phones", default: [], comment: "手机", array: true
+    t.string "telephone", comment: "电话"
+    t.string "email", comment: "邮箱"
+    t.string "remark", comment: "备注"
+    t.bigint "company_id", comment: "所属公司"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["company_id"], name: "index_contacts_on_company_id"
   end
 
-  create_table "teachers", force: :cascade do |t|
-    t.string "name"
+  create_table "tasks", force: :cascade do |t|
+    t.datetime "time", comment: "安排时间"
+    t.text "remark", comment: "备注"
+    t.string "stage", comment: "阶段"
+    t.integer "state", default: 0, comment: "状态"
+    t.bigint "company_id", comment: "所属公司"
+    t.bigint "contact_id", comment: "联系人"
+    t.bigint "user_id", comment: "跟进人"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "age", comment: "年龄"
-    t.string "descriotion", comment: "所教课程"
-    t.boolean "is_free"
+    t.index ["company_id"], name: "index_tasks_on_company_id"
+    t.index ["contact_id"], name: "index_tasks_on_contact_id"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "username", comment: "用户名"
-    t.integer "sex", comment: "性别"
+    t.string "name", comment: "姓名"
+    t.string "gender", comment: "性别"
+    t.integer "role", comment: "角色"
+    t.string "password_digest", comment: "密码"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "companies", "users", column: "follow_person_id"
+  add_foreign_key "contacts", "companies"
+  add_foreign_key "tasks", "companies"
+  add_foreign_key "tasks", "contacts"
+  add_foreign_key "tasks", "users"
 end

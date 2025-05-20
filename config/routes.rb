@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  devise_for :app_user
+  devise_for :user
 
   mount V1::Base => '/api/v1'
   
