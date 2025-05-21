@@ -1,5 +1,14 @@
 class User < ApplicationRecord
 
+  include Devise::JWT::RevocationStrategies::Allowlist
+
+  devise :database_authenticatable, :registerable,
+      :recoverable, :rememberable, :validatable,
+      :jwt_authenticatable, jwt_revocation_strategy: self
+
+
+  has_secure_password
+
   ## 跟进的公司列表
   has_many :compass
   
@@ -11,16 +20,12 @@ class User < ApplicationRecord
   # @param
   # @return
   # 
-  def generate_jwt(user)
+  def generate_jwt
 
-      exp = 24.hours.from_now.to_i
+    payload = { user_id: id, exp: 1.day.from_now.to_i }
 
-      payload = {
-        sub: user.id,
-        exp: exp
-      }
-
-      JWT.encode(payload,Rails.application.credentials.devise_jwt_secret_key!)
+    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key)
+    
   end
 
   ####### 
@@ -29,7 +34,9 @@ class User < ApplicationRecord
   # 
   def generate_jwt 
 
-    decoded = JWT.decode(token,Rails.application.credentials.devise_jwt_secret_key!,true)
+    payload = { user_id: id, exp: 1.day.from_now.to_i }
+    
+    JWT.encode(payload, Rails.application.credentials.devise_jwt_secret_key)
 
   end
 

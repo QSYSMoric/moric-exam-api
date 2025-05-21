@@ -47,6 +47,15 @@ module V1
         
       end
 
+      desc "获取用户列表"
+      get :list do 
+
+        res = UserService.get_users_list
+
+        success_response(res)
+        
+      end
+
     end
     
   end

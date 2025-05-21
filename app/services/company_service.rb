@@ -18,7 +18,9 @@ module CompanyService
 
     user = User.find(params[:follow_person_id])
       
-    Company.create(params)
+    com = Company.create(params)
+
+    com.as_json(include: { follow_person: { only: [:id, :name] } })
 
   end
 
@@ -54,14 +56,26 @@ module CompanyService
   def self.get_compony(company_id)
 
     company = Company
-      .includes(:contacts, :tasks, :follow_person)
-      .find(company_id)
+        .includes(
+          :contacts,
+          :follow_person
+        )
+        .includes(tasks: [:contact, :follow_person])
+        .find(company_id)
 
     company.as_json(
       include: {
-        contacts: {},
-        tasks: {},
-        follow_person: {}
+        contacts: {
+          methods: [:masked_phones],
+          except: [:phones]
+        },
+        tasks: {
+           contact: { },
+           follow_person: { only: [:id, :name] }
+        },
+        follow_person: {
+          only: [:id, :name]
+        }
       }
     )
 
@@ -101,10 +115,16 @@ module CompanyService
   # 
   def self.delete_compony(company_id)
 
-    company = Company.find(company_id)
+    Company.transaction do
 
-    company.destroy!
-    
+      Task.where(company_id: company_id).delete_all
+
+      Contact.where(company_id: company_id).delete_all
+
+      Company.delete(company_id)
+
+    end
+  
   end
 
   ####### 
@@ -129,7 +149,11 @@ module CompanyService
   # 
   def self.set_task(task_id, params)
 
+    p task_id,params
+
     task = Task.find(task_id)
+
+    p task
     
     task_form = params.slice(:time, :stage, :user_id, :state, :contact_id, :remark, :contact_information)
     
@@ -176,7 +200,7 @@ module CompanyService
     tasks.update_all(state: 1)
 
     if updated != students.count
-        raise "学生状态更新失败"
+        raise "状态更新失败"
     end
 
   end

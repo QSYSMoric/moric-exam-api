@@ -7,7 +7,7 @@ class Company < ApplicationRecord
   has_many :tasks, dependent: :destroy
 
   ## 公司下的跟进人
-  belongs_to :follow_person, class_name: 'User', optional: true
+  belongs_to :follow_person, class_name: 'User', optional: true, foreign_key: "follow_person_id",dependent: :destroy
 
   ####### 
   # @description: 分页查询公司列表
@@ -30,19 +30,9 @@ class Company < ApplicationRecord
     total_count = query.count
     
     # 计算分页数据
-    companies = query.offset((page - 1) * per_page).limit(per_page)
-    
-    dto = Hash.new
+    companies = query.includes(:follow_person).offset((page - 1) * per_page).limit(per_page)
 
-    {
-      current_page: page,
-      total_pages: (total_count.to_f / per_page).ceil,
-      total_count: total_count,
-      rows: companies,
-      per_page: per_page
-    }
-
-    PageDto.new(page, total_count, per_page, companies)
+    PageDto.new(page, total_count, per_page, companies.as_json(include: { follow_person: { only: [:id, :name] } }))
 
   end
 
