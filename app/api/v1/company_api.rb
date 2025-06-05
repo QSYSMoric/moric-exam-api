@@ -68,6 +68,8 @@ module V1
       end
       get do
 
+        a = params[:per_page].to_is
+
         res = CompanyService.list_query(params[:per_page], params[:limit])
         
         success_response(res)
