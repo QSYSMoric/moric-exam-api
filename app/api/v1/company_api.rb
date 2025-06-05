@@ -68,6 +68,8 @@ module V1
       end
       get do
 
+        b = params[:company_name].blank? ? nil : params[:company_name]
+
         res = CompanyService.list_query(params[:per_page], params[:limit])
         
         success_response(res)
